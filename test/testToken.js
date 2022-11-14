@@ -87,11 +87,6 @@ describe("testToken unit testing", () => {
 			expect(await localTokenInstance.allowance(owner.address, addr1.address)).to.be.eq(50);
 		});
 
-		it("should revert on 3rd party checking allowances", async () => {
-			const [owner, addr1, addr2] = accounts;
-			await expect(localTokenInstance.connect(addr2).allowance(owner.address, addr1.address)).to.be.reverted;
-		});
-
 		it("should revert if addr1 approves 50 allowance to owner: insufficient balance", async () => {
 			const [owner, addr1, addr2] = accounts;
 			await expect(localTokenInstance.connect(addr1).approve(owner.address, 50)).to.be.reverted;

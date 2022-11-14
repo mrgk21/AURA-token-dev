@@ -7,14 +7,14 @@ import "./interfaces/erc20.sol";
 //  = "Terminated The Token";, "T801", "1000000"
 contract TestToken is ERC20, Ownable {
     // @dev the mapping manages account balances
-    mapping(address => uint256) private balances;
+    mapping(address => uint256) public balances;
 
     //@dev the mapping manages approvals between 2 accounts, could be further optimised
-    mapping(address => mapping(address => uint256)) private approvals;
+    mapping(address => mapping(address => uint256)) public approvals;
 
-    string private _name;
-    string private _symbol;
-    uint256 private _totalSupply;
+    string public _name;
+    string public _symbol;
+    uint256 public _totalSupply;
 
     // @notice constructor initializes name, symbol and totalsupply during deployment
     constructor(
@@ -49,6 +49,11 @@ contract TestToken is ERC20, Ownable {
         _;
     }
 
+    modifier notSelf(address _to) {
+        require(msg.sender != _to, "You cannot send money to yourself");
+        _;
+    }
+
     // @notice function returns the account balance of the `_owner`
     function balanceOf(address _owner)
         public
@@ -63,6 +68,7 @@ contract TestToken is ERC20, Ownable {
     function transfer(address _to, uint256 _value)
         public
         override
+        notSelf(_to)
         sufficientBalance(_value)
         returns (bool success)
     {
@@ -79,18 +85,13 @@ contract TestToken is ERC20, Ownable {
         view
         returns (uint256 remaining)
     {
-        require(
-            msg.sender == _owner || msg.sender == _spender,
-            "You cant see the allowance"
-        );
         return approvals[_owner][_spender];
     }
 
     // @notice function approves `_spender` to spend `_value` amount on behalf of the owner(Acc. which called the approve function)
-    // @notice do not send tokens to yourself, this is a know bug and will lead to loss of tokens
-    // @dev test case where msg.sender == _spender leading to loss of tokens, is not handled. Redeploy later.
     function approve(address _spender, uint256 _value)
         public
+        notSelf(_spender)
         sufficientBalance(_value)
         returns (bool success)
     {
@@ -106,7 +107,7 @@ contract TestToken is ERC20, Ownable {
         address _from,
         address _to,
         uint256 _value
-    ) public returns (bool success) {
+    ) public notSelf(_to) returns (bool success) {
         if (_from == msg.sender) {
             transfer(_to, _value);
         }
