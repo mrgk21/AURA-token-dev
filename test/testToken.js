@@ -53,7 +53,13 @@ describe("testToken unit testing", () => {
 			const [owner, addr1] = accounts;
 			const testToken = await loadFixture(tokenFixture);
 
-			await expect(testToken.transfer(addr1.address, 20)).to.be.fulfilled.and.to.emit(testToken, "Transfer");
+			testToken
+				.transfer(addr1.address, 20)
+				.then((res) => res.wait())
+				.then((res) => {
+					expect(res.logs[0].address).to.be.eq(addr1.address);
+					expect(res.events[0].event).to.be.eq("Transfer");
+				});
 			expect(await testToken.balanceOf(owner.address)).to.be.eq(9979);
 			expect(await testToken.balanceOf(addr1.address)).to.be.eq(20);
 		});

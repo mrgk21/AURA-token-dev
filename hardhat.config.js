@@ -11,5 +11,9 @@ module.exports = {
 			url: process.env.SEPOLIA_API_URL,
 			accounts: [`0x${process.env.ACC1_PRIVATE_KEY}`],
 		},
+		georli: {
+			url: process.env.GEORLI_API_URL,
+			accounts: [`0x${process.env.ACC1_PRIVATE_KEY}`],
+		},
 	},
 };

@@ -95,7 +95,6 @@ contract TestToken is ERC20, Ownable {
         sufficientBalance(_value)
         returns (bool success)
     {
-        balances[msg.sender] -= _value;
         approvals[msg.sender][_spender] += _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
@@ -108,12 +107,15 @@ contract TestToken is ERC20, Ownable {
         address _to,
         uint256 _value
     ) public notSelf(_to) returns (bool success) {
-        if (_from == msg.sender) {
-            transfer(_to, _value);
-        }
-        require(approvals[_from][msg.sender] >= _value, "Insufficient balance");
-        approvals[_from][msg.sender] -= _value;
+        require(balances[_from] >= _value, "Insufficient balance");
+        require(
+            approvals[_from][msg.sender] >= _value,
+            "Insufficient approval"
+        );
+
+        balances[_from] -= _value;
         balances[_to] += _value;
+        approvals[_from][msg.sender] -= _value;
         emit Transfer(_from, _to, _value);
         return true;
     }
