@@ -41,7 +41,6 @@ contract TestToken is ERC20, Ownable {
     }
 
     modifier sufficientBalance(uint256 _value) {
-        require(_value >= 0, "");
         require(balances[msg.sender] >= _value, "Insufficient balance");
         _;
     }
@@ -55,18 +54,6 @@ contract TestToken is ERC20, Ownable {
         return balances[_owner];
     }
 
-    function allowance(address _owner, address _spender)
-        public
-        view
-        returns (uint256 remaining)
-    {
-        require(
-            msg.sender == _owner || msg.sender == _spender,
-            "You cant see the allowance"
-        );
-        return approvals[_owner][_spender];
-    }
-
     function transfer(address _to, uint256 _value)
         public
         override
@@ -77,6 +64,18 @@ contract TestToken is ERC20, Ownable {
         balances[_to] += _value;
         emit Transfer(msg.sender, _to, _value);
         return true;
+    }
+
+    function allowance(address _owner, address _spender)
+        public
+        view
+        returns (uint256 remaining)
+    {
+        require(
+            msg.sender == _owner || msg.sender == _spender,
+            "You cant see the allowance"
+        );
+        return approvals[_owner][_spender];
     }
 
     function approve(address _spender, uint256 _value)
@@ -100,7 +99,8 @@ contract TestToken is ERC20, Ownable {
         }
         require(approvals[_from][msg.sender] >= _value, "Insufficient balance");
         approvals[_from][msg.sender] -= _value;
-        emit Approval(_from, msg.sender, _value);
+        balances[_to] += _value;
+        emit Transfer(_from, _to, _value);
         return true;
     }
 }
