@@ -1,6 +1,6 @@
 async function main() {
 	const TestToken = await ethers.getContractFactory("TestToken");
-	const testTokenContract = await TestToken.deploy("fancyApple token", "FAPPL", 100000000);
+	const testTokenContract = await TestToken.deploy("fancyBanana token", "FBNNA", 100000000);
 	console.log("Contract deployed to address:", testTokenContract.address);
 }
 

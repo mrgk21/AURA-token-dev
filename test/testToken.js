@@ -115,4 +115,32 @@ describe("testToken unit testing", () => {
 				.reverted;
 		});
 	});
+
+	describe("Faucet functions", () => {
+		let localTokenInstance;
+		it("should let the owner set faucetlimit to 2000 tokens", async () => {
+			const [owner] = accounts;
+			const testToken = await loadFixture(tokenFixture);
+			localTokenInstance = testToken;
+			await expect(localTokenInstance.refillFaucet(2000)).to.be.fulfilled;
+			expect(await localTokenInstance.balanceOf(owner.address), "owner transferred tokens").to.be.eq(9999);
+			expect(await localTokenInstance._faucetLimit(), "faucetLimit did not increase by 2000").to.be.eq(2000);
+		});
+
+		it("should revert another user changing the faucetlimit", async () => {
+			const [, addr1] = accounts;
+			await expect(localTokenInstance.connect(addr1).refillFaucet(150)).to.be.reverted;
+		});
+
+		it("should revert if owner doesnt have enough funds to refill faucet", async () => {
+			await expect(localTokenInstance.refillFaucet(999999999999)).to.be.reverted;
+		});
+
+		it("should let addr1 request 100 tokens from the faucet", async () => {
+			const [owner, addr1] = accounts;
+			await expect(localTokenInstance.connect(addr1).faucet(100)).to.be.fulfilled;
+			expect(await localTokenInstance.balanceOf(addr1.address), "addr1 got more tokens").to.be.eq(100);
+			expect(await localTokenInstance._faucetLimit(), "faucetLimit did not decrease to 100").to.be.eq(1900);
+		});
+	});
 });

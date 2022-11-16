@@ -24,6 +24,7 @@ const contracts = [
 		type: "ERC20",
 	},
 	{
+		//0x4545761717E1aEB030C99e178968E08A4Ce27B10
 		//this one is perfect: fixed transactionfrom bug
 		id: 3,
 		name: "fancyApple token",
@@ -34,6 +35,19 @@ const contracts = [
 			key: `0x${process.env.ACC1_PRIVATE_KEY}`,
 		},
 		address: "0xb65CE4dC4e457e91bB07fD99954579804228f9A5",
+		type: "ERC20",
+	},
+	{
+		//implemented faucet code
+		id: 4,
+		name: "fancyBanana token",
+		symbol: "FAPPL",
+		totalSupply: 100000000,
+		creationAccount: {
+			address: "0x54fCe65792cbC7ad71c7220D6461D023A4d413a6",
+			key: `0x${process.env.ACC1_PRIVATE_KEY}`,
+		},
+		address: "0x4545761717E1aEB030C99e178968E08A4Ce27B10",
 		type: "ERC20",
 	},
 ];

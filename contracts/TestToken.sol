@@ -15,6 +15,7 @@ contract TestToken is ERC20, Ownable {
     string public _name;
     string public _symbol;
     uint256 public _totalSupply;
+    uint256 public _faucetLimit;
 
     // @notice constructor initializes name, symbol and totalsupply during deployment
     constructor(
@@ -118,5 +119,28 @@ contract TestToken is ERC20, Ownable {
         approvals[_from][msg.sender] -= _value;
         emit Transfer(_from, _to, _value);
         return true;
+    }
+
+    // @notice function requests faucet funds from the the account owner
+    function faucet(uint256 _value)
+        public
+        notSelf(_owner)
+        returns (bool success)
+    {
+        require(balances[_owner] >= _value, "Low balance");
+        require(_faucetLimit - _value >= 0, "Low faucet balance");
+
+        balances[_owner] -= _value;
+        balances[msg.sender] += _value;
+        _faucetLimit -= _value;
+        emit Transfer(_owner, msg.sender, _value);
+        return true;
+    }
+
+    // @notice function lets owner add faucetLimit
+    function refillFaucet(uint256 _value) public onlyOwner {
+        require(balances[_owner] >= _value);
+
+        _faucetLimit += _value;
     }
 }
