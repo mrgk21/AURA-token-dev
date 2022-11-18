@@ -1,6 +1,6 @@
 async function main() {
 	const TestToken = await ethers.getContractFactory("TestToken");
-	const testTokenContract = await TestToken.deploy("fancyBrocolli token", "FBRC", 100000000);
+	const testTokenContract = await TestToken.deploy("Aurora Token", "AURA", 100000000);
 	console.log("Contract deployed to address:", testTokenContract.address);
 }
 

@@ -53,7 +53,13 @@ describe("testToken unit testing", () => {
 			const [owner, addr1] = accounts;
 			const testToken = await loadFixture(tokenFixture);
 
-			await expect(testToken.transfer(addr1.address, 20)).to.be.fulfilled.and.to.emit(testToken, "Transfer");
+			testToken
+				.transfer(addr1.address, 20)
+				.then((res) => res.wait())
+				.then((res) => {
+					expect(res.logs[0].address).to.be.eq(addr1.address);
+					expect(res.events[0].event).to.be.eq("Transfer");
+				});
 			expect(await testToken.balanceOf(owner.address)).to.be.eq(9979);
 			expect(await testToken.balanceOf(addr1.address)).to.be.eq(20);
 		});
@@ -87,11 +93,6 @@ describe("testToken unit testing", () => {
 			expect(await localTokenInstance.allowance(owner.address, addr1.address)).to.be.eq(50);
 		});
 
-		it("should revert on 3rd party checking allowances", async () => {
-			const [owner, addr1, addr2] = accounts;
-			await expect(localTokenInstance.connect(addr2).allowance(owner.address, addr1.address)).to.be.reverted;
-		});
-
 		it("should revert if addr1 approves 50 allowance to owner: insufficient balance", async () => {
 			const [owner, addr1, addr2] = accounts;
 			await expect(localTokenInstance.connect(addr1).approve(owner.address, 50)).to.be.reverted;
@@ -112,6 +113,34 @@ describe("testToken unit testing", () => {
 			const [owner, addr1, addr2] = accounts;
 			await expect(localTokenInstance.connect(addr1).transferFrom(owner.address, addr2.address, 250)).to.be
 				.reverted;
+		});
+	});
+
+	describe("Faucet functions", () => {
+		let localTokenInstance;
+		it("should let the owner set faucetlimit to 2000 tokens", async () => {
+			const [owner] = accounts;
+			const testToken = await loadFixture(tokenFixture);
+			localTokenInstance = testToken;
+			await expect(localTokenInstance.refillFaucet(2000)).to.be.fulfilled;
+			expect(await localTokenInstance.balanceOf(owner.address), "owner transferred tokens").to.be.eq(9999);
+			expect(await localTokenInstance._faucetLimit(), "faucetLimit did not increase by 2000").to.be.eq(2000);
+		});
+
+		it("should revert another user changing the faucetlimit", async () => {
+			const [, addr1] = accounts;
+			await expect(localTokenInstance.connect(addr1).refillFaucet(150)).to.be.reverted;
+		});
+
+		it("should revert if owner doesnt have enough funds to refill faucet", async () => {
+			await expect(localTokenInstance.refillFaucet(999999999999)).to.be.reverted;
+		});
+
+		it("should let addr1 request 100 tokens from the faucet", async () => {
+			const [owner, addr1] = accounts;
+			await expect(localTokenInstance.connect(addr1).faucet(100)).to.be.fulfilled;
+			expect(await localTokenInstance.balanceOf(addr1.address), "addr1 got more tokens").to.be.eq(100);
+			expect(await localTokenInstance._faucetLimit(), "faucetLimit did not decrease to 100").to.be.eq(1900);
 		});
 	});
 });
