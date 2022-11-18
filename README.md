@@ -1,4 +1,4 @@
-# My Token project
+# AURA Token project
 
 ~~Currently in development...~~
 View production [Here](https://mrgk21.github.io/AURA-token-faucet/)
