@@ -1,4 +1,5 @@
 node_modules
+deployedContracts.js
 .env
 coverage
 coverage.json
@@ -8,7 +9,6 @@ typechain-types
 #Hardhat files
 cache
 artifacts
-
 
 node_modules
 .env
